@@ -3,6 +3,8 @@ package io.pivotal.literx;
 import io.pivotal.literx.domain.User;
 import io.pivotal.literx.repository.ReactiveRepository;
 import io.pivotal.literx.repository.ReactiveUserRepository;
+import java.util.function.Consumer;
+import org.reactivestreams.Subscription;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
@@ -19,28 +21,31 @@ public class Part06Request {
 
 	// TODO Create a StepVerifier that initially requests all values and expect 4 values to be received
 	StepVerifier requestAllExpectFour(Flux<User> flux) {
-		return null;
+		return StepVerifier.create(flux).thenRequest(Integer.MAX_VALUE).expectNextCount(4).expectComplete();
 	}
 
 //========================================================================================
 
 	// TODO Create a StepVerifier that initially requests 1 value and expects User.SKYLER then requests another value and expects User.JESSE.
 	StepVerifier requestOneExpectSkylerThenRequestOneExpectJesse(Flux<User> flux) {
-		return null;
+		return StepVerifier.create(flux).thenRequest(1).expectNext(User.SKYLER).thenRequest(1).expectNext(User.JESSE)
+				.thenCancel();
 	}
 
 //========================================================================================
 
 	// TODO Return a Flux with all users stored in the repository that prints automatically logs for all Reactive Streams signals
 	Flux<User> fluxWithLog() {
-		return null;
+		return repository.findAll().log();
 	}
 
 //========================================================================================
 
 	// TODO Return a Flux with all users stored in the repository that prints "Starring:" on subscribe, "firstname lastname" for all values and "The end!" on complete
 	Flux<User> fluxWithDoOnPrintln() {
-		return null;
+		return repository.findAll().doOnSubscribe(subscription -> System.out.println("Starring:"))
+				.doOnNext(u -> System.out.println(u.getFirstname() + " " + u.getLastname())).doOnComplete(() -> System.out
+						.println("The end!"));
 	}
 
 }
